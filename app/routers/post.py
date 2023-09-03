@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import Depends, status, HTTPException, APIRouter
 from sqlalchemy.orm import Session
-
+from app.oauth2 import get_current_user
 
 from app.database import get_db
 from app import models, schemas
@@ -21,8 +21,12 @@ def all_posts(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=schemas.Post)
-def create_post(post: schemas.CreatePost, db: Session = Depends(get_db)):
-    new_post = models.Post(**post.dict())
+def create_post(
+    post: schemas.CreatePost,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    new_post = models.Post(**post.dict(), owner_id=current_user.id)
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -48,7 +52,12 @@ def get_post(id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=schemas.Post)
-def update_post(id: int, post: schemas.CreatePost, db: Session = Depends(get_db)):
+def update_post(
+    id: int,
+    post: schemas.CreatePost,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     # post=post_query.first()
     updated_post = post_query.update(post.dict(), synchronize_session=False)
@@ -63,7 +72,9 @@ def update_post(id: int, post: schemas.CreatePost, db: Session = Depends(get_db)
 
 
 @router.delete("/{id}")
-def delete_post(id: int, db: Session = Depends(get_db)):
+def delete_post(
+    id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     deleted = post_query.delete(synchronize_session=False)
     db.commit()

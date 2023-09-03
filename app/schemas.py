@@ -5,6 +5,7 @@ from datetime import datetime
 class PostBase(BaseModel):
     title: str
     content: str
+    # owner_id: int
     published: bool = True
 
 
@@ -15,6 +16,7 @@ class CreatePost(PostBase):
 class Post(PostBase):
     id: int
     created_at: datetime
+    owner_id: int
 
     class config:
         orm_mode = True
@@ -35,5 +37,5 @@ class user_responce(BaseModel):
 
 
 class UserLogin(BaseModel):
-    email: str
+    username: str
     password: str
