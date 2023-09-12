@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Optional
 from fastapi import Depends, status, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from app.oauth2 import get_current_user
+from sqlalchemy import func
 
 from app.database import get_db
 from app import models, schemas
@@ -9,11 +10,20 @@ from app import models, schemas
 router = APIRouter(prefix="/posts")
 
 
-@router.get("/", response_model=List[schemas.Post])
-def all_posts(db: Session = Depends(get_db)):
+@router.get("/", response_model=List[schemas.PostWithVotes])
+def all_posts(db: Session = Depends(get_db), skip: int = 0, search: Optional[str] = ""):
     # cursor.execute(""" SELECT * FROM posts """)
     # posts = cursor.fetchall()
-    posts = db.query(models.Post).all()
+    posts = (
+        db.query(models.Post, func.count(models.Vote.post_id).label("votes"))
+        .join(models.Vote, models.Post.id == models.Vote.post_id, isouter=True)
+        .group_by(models.Post.id)
+        .limit(2)
+        .offset(skip)
+        .all()
+    )
+    print(posts)
+
     return posts
     # return Response(
     #     {"message": "successful ", "posts": posts}, status_code=status.HTTP_200_OK

@@ -10,17 +10,19 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import engine, get_db
-from app.routers import post, user, auth
+from app.routers import post, user, auth, vote
 
-models.Base.metadata.create_all(bind=engine)
+
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(vote.router)
 
-while True:
+""" while True:
     try:
         conn = psycopg2.connect(
             host="localhost",
@@ -34,4 +36,4 @@ while True:
         break
     except Exception as error:
         print("connecting to database failed")
-        print("error:", error)
+        print("error:", error) """
