@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import engine, get_db
-from app.routers import post, user, auth, vote
+from app.routers import post, user, auth, vote, comment
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -34,7 +34,7 @@ app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(vote.router)
-
+app.include_router(comment.router)
 
 """ while True:
     try:

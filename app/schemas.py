@@ -54,3 +54,17 @@ class UserLogin(BaseModel):
 class Vote(BaseModel):
     post_id: int
     dir: conint(le=1)
+
+
+class Comment(BaseModel):
+    post_id: int
+    comment: str
+
+
+class CommentResponce(Comment):
+    id: int
+    created_at: datetime
+    commenter: user_responce
+
+    class config:
+        orm_mode = True
